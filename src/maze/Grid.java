@@ -2,7 +2,7 @@ package maze;
 
 import java.util.Random;
 
-public class Grid{
+public class Grid {
     public static final int FLOOR = 0;
     public static final int WALL = 1;
     public static final int START = 2;
@@ -24,39 +24,53 @@ public class Grid{
     public MazeGenerator mazeGenerator;
 
     public Grid(int width, int height) {
-        this.width = width;
-        this.height = height;
-        grid = new int[height][width];
-        startX = (rand.nextInt((width - 1) / 2) * 2 + 1);
-        startY = (rand.nextInt((height - 1) / 2) * 2 + 1);
+        // Ensure odd dimensions for proper maze generation
+//        this.width = 17;
+//        this.height = 17;
+        this.width = (width % 2 == 0) ? width + 1 : width;
+        this.height = (height % 2 == 0) ? height + 1 : height;
+        grid = new int[this.height][this.width];
 
-        final int minDistance = 30;
-        int attempts = 0;
-        final int maxAttempts = 100;
-
-        // Generate end position, ensuring it's far enough from start
-        do {
-            endX = (rand.nextInt((width - 1) / 2) * 2 + 1); // Odd x in [1, width-1]
-            endY = (rand.nextInt((height - 1) / 2) * 2 + 1); // Odd y in [1, height-1]
-            attempts++;
-        } while (calculateManhattanDistance(startX, startY, endX, endY) < minDistance && attempts < maxAttempts);
-        if (attempts >= maxAttempts) {
-            // Fallback: Place end in opposite corner or far region
-            endX = (startX < width / 2) ? (width - 2) : 1;
-            endY = (startY < height / 2) ? (height - 2) : 1;
-        }
+        // Place start and end near opposite edges, mirrored
+        placeStartAndEnd();
         initializeGrid();
-
+        mazeGenerator.printMazeAsNumbers();
     }
-    private int calculateManhattanDistance(int x1, int y1, int x2, int y2) {
-        return Math.abs(x2 - x1) + Math.abs(y2 - y1);
+
+    private void placeStartAndEnd() {
+        // Randomly choose one of two mirrored configurations:
+        // 1. Start in top-left, end in bottom-right
+        // 2. Start in bottom-right, end in top-left
+        boolean topLeftStart = rand.nextBoolean();
+
+        if (topLeftStart) {
+            // Start near top-left (odd coordinates, close to edge)
+            startX = 1; // First odd column
+            startY = 1; // First odd row
+            // End near bottom-right
+            endX = width - 2; // Last odd column
+            endY = height - 2; // Last odd row
+        } else {
+            // Start near bottom-right
+            startX = width - 2;
+            startY = height - 2;
+            // End near top-left
+            endX = 1;
+            endY = 1;
+        }
+
+        // Ensure start and end are on valid floor cells (odd coordinates)
+        if (startX % 2 == 0) startX--;
+        if (startY % 2 == 0) startY--;
+        if (endX % 2 == 0) endX--;
+        if (endY % 2 == 0) endY--;
     }
 
     private void initializeGrid() {
-        // Sample level: 0 = FLOOR, 1 = WALL
-        mazeGenerator= new MazeGenerator(width, height, startX, startY, endX, endY);
+        // Initialize maze with MazeGenerator
+        mazeGenerator = new MazeGenerator(width, height, startX, startY, endX, endY);
         mazeGenerator.generateMaze();
-        mazeGenerator.printMazeAsNumbers();
+        // mazeGenerator.printMazeAsNumbers(); // Optional: for debugging
         int[][] initialGrid = mazeGenerator.getMazeArray();
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
@@ -69,14 +83,13 @@ public class Grid{
     public void getCharacterStartFromMaze() {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if(grid[y][x]==START) {
-                    characterStartX=x;
-                    characterStartY=y;
+                if (grid[y][x] == START) {
+                    characterStartX = x;
+                    characterStartY = y;
                 }
             }
         }
     }
-
 
     public int getCharacterStartX() {
         return characterStartX;
@@ -90,16 +103,7 @@ public class Grid{
         if (x < 0 || x >= width || y < 0 || y >= height) {
             return false;
         }
-        else if(grid[y][x] == START) {
-            return grid[y][x] == START;
-        }
-        else if(grid[y][x] == END) {
-            return grid[y][x] == END;
-        }
-        else if(grid[y][x] == PATH) {
-            return grid[y][x] == PATH;
-        }
-        return grid[y][x] == FLOOR;
+        return grid[y][x] == FLOOR || grid[y][x] == START || grid[y][x] == END || grid[y][x] == PATH;
     }
 
     public int getCell(int x, int y) {
@@ -113,5 +117,4 @@ public class Grid{
     public int getHeight() {
         return height;
     }
-
 }

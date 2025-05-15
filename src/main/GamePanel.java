@@ -3,6 +3,7 @@ package main;
 import entity.Player;
 import input.KeyHandler;
 import maze.Grid;
+import tile.TileManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,6 +17,9 @@ public class GamePanel extends JPanel implements Runnable {
     final int screenWidth = tileSize * maxScreenCol; // 640
     final int screenHeight = tileSize * maxScreenRow; // 512
 
+    public final int offsetX=375;
+    public final int offsetY=25;
+
     public int FPS = 165;
 
 
@@ -24,10 +28,11 @@ public class GamePanel extends JPanel implements Runnable {
     Player player;
     KeyHandler keyH = new KeyHandler();
     UI ui;
+    TileManager tileManager;
 
 
     public GamePanel() {
-        this.setPreferredSize(new Dimension(screenWidth, screenHeight));
+        this.setPreferredSize(new Dimension(1920, 1080));
         this.setBackground(Color.BLACK);
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
@@ -36,6 +41,7 @@ public class GamePanel extends JPanel implements Runnable {
         this.grid=new Grid(maxScreenCol, maxScreenRow);
         this.player=new Player(this, keyH, grid);
         this.ui=new UI(this);
+        this.tileManager=new TileManager(this, grid);
     }
 
     public void startGameThread() {
@@ -79,28 +85,7 @@ public class GamePanel extends JPanel implements Runnable {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
-        // Render grid
-        for (int y = 0; y < grid.getHeight(); y++) {
-            for (int x = 0; x < grid.getWidth(); x++) {
-                int worldX = x * tileSize;
-                int worldY = y * tileSize;
-                if (grid.getCell(x, y) == Grid.FLOOR) {
-                    g2.setColor(Color.BLACK);
-                } else if (grid.getCell(x, y) == Grid.WALL) {
-                    g2.setColor(Color.GRAY);
-                }
-                else if(grid.getCell(x, y) == Grid.START) {
-                    g2.setColor(Color.GREEN);
-                }
-                else if (grid.getCell(x, y) == Grid.END) {
-                    g2.setColor(Color.RED);
-                }
-                else if(grid.getCell(x,y)==Grid.PATH){
-                    g2.setColor(Color.BLUE);
-                }
-                g2.fillRect(worldX, worldY, tileSize, tileSize);
-            }
-        }
+        tileManager.draw(g2);
         player.draw(g2);
         ui.draw(g2);
         g2.dispose();
@@ -111,6 +96,7 @@ public class GamePanel extends JPanel implements Runnable {
             if(keyH.controlPressed){
                 this.grid=new Grid(maxScreenCol, maxScreenRow);
                 player.reset(this.grid);
+                tileManager.reset(this.grid);
                 keyH.resetKeys();
                 System.out.println("Ctrl R");
             }

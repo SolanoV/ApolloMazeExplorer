@@ -1,5 +1,7 @@
 package main;
 
+import maze.Grid;
+
 import java.awt.*;
 
 public class UI {
@@ -14,7 +16,8 @@ public class UI {
     public void draw(Graphics g) {
         g.setFont(arial_40);
         g.setColor(Color.white);
-        g.drawString("Moves: "+gp.player.getMoves(), 50, 50);
+        g.drawString(""+gp.player.getMoves(), 100, 100);
 
     }
+
 }

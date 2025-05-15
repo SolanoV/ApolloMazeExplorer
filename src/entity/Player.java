@@ -55,7 +55,7 @@ public class Player extends Entity {
 
         xPosition=grid.getCharacterStartX();
         yPosition=grid.getCharacterStartY();
-        direction="UP";
+        direction="DOWN";
         this.worldX=xPosition*tileSize;
         this.worldY=yPosition*tileSize;
         this.targetGridX=xPosition;
@@ -70,7 +70,7 @@ public class Player extends Entity {
         importImage();
         loadAnimations();
 
-        animationSpeed=30;
+        animationSpeed=80;
         playerAction=IDLEFRONT;
     }
     public void update() {
@@ -98,11 +98,13 @@ public class Player extends Entity {
                 playerAction=IDLEFRONT;
                 break;
         }
-        g.drawImage(animations[playerAction][animationIndex],(int) worldX,(int) worldY, gp.originalTileSize*gp.scale, gp.originalTileSize*gp.scale,null);
+        int drawX = (int) worldX + gp.offsetX;
+        int drawY = (int) worldY + gp.offsetY;
+        g.drawImage(animations[playerAction][animationIndex],drawX,drawY, gp.originalTileSize*gp.scale, gp.originalTileSize*gp.scale,null);
 
     }
     private void importImage() {
-        InputStream is = getClass().getResourceAsStream("/player/character_sprites.png");
+        InputStream is = getClass().getResourceAsStream("/entity/character_sprites.png");
 
         try{
             img = ImageIO.read(is);
@@ -221,6 +223,7 @@ public class Player extends Entity {
             this.worldY=yPosition*tileSize;
             this.targetGridX=xPosition;
             this.targetGridY=yPosition;
+            this.direction="DOWN";
         }
     }
     public void reset(Grid grid){
@@ -232,6 +235,7 @@ public class Player extends Entity {
         this.worldY=yPosition*tileSize;
         this.targetGridX=xPosition;
         this.targetGridY=yPosition;
+        this.direction="DOWN";
     }
 
     public int getMoves() {
