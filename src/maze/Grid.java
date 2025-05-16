@@ -117,4 +117,16 @@ public class Grid {
     public int getHeight() {
         return height;
     }
+    public int getStartX(){
+        return startX;
+    }
+    public int getStartY(){
+        return startY;
+    }
+    public int getEndX(){
+        return endX;
+    }
+    public int getEndY(){
+        return endY;
+    }
 }

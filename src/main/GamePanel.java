@@ -14,34 +14,51 @@ public class GamePanel extends JPanel implements Runnable {
     public final int tileSize = originalTileSize * scale; // 32 by 32
     public final int maxScreenCol = 17;
     public final int maxScreenRow = 17;
-    final int screenWidth = tileSize * maxScreenCol; // 640
-    final int screenHeight = tileSize * maxScreenRow; // 512
+    final int screenWidth = 1920; // 640
+    final int screenHeight = 1080; // 512
 
     public final int offsetX=375;
     public final int offsetY=25;
 
     public int FPS = 165;
 
-
+    //SYSTEM
     Thread gameThread;
     Grid grid;
-    Player player;
-    KeyHandler keyH = new KeyHandler();
-    UI ui;
+    KeyHandler keyH= new KeyHandler(this);;
+    public UI ui;
     TileManager tileManager;
+    Sound sound;
+
+    // ENTITY AND OBJECTS
+    Player player;
+
+    // GAME STATE
+    public int gameState;
+    public final int titleState=0;
+    public final int playState=1;
+    public final int pauseState=2;
 
 
     public GamePanel() {
-        this.setPreferredSize(new Dimension(1920, 1080));
+        this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.BLACK);
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
 
+        // SYSTEM
         this.grid=new Grid(maxScreenCol, maxScreenRow);
-        this.player=new Player(this, keyH, grid);
         this.ui=new UI(this);
         this.tileManager=new TileManager(this, grid);
+        this.sound=new Sound();
+
+        // ENTITY AND OBJECTS
+        this.player=new Player(this, keyH, grid);
+    }
+    public void setupGame(){
+        gameState=titleState;
+
     }
 
     public void startGameThread() {
@@ -77,18 +94,28 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update() {
-        player.update();
-        resetPressedHandler();
+        if (gameState == playState) {
+            player.update();
+            resetPressedHandler();
+        }
+        else if (gameState == pauseState) {
+
+        }
     }
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
+        if(gameState==titleState){
+            ui.draw(g2);
+        }
+        else if(gameState==playState) {
 
-        tileManager.draw(g2);
-        player.draw(g2);
-        ui.draw(g2);
-        g2.dispose();
+            tileManager.draw(g2);
+            player.draw(g2);
+            ui.draw(g2);
+            g2.dispose();
+        }
     }
 
     private void resetPressedHandler(){
@@ -106,5 +133,20 @@ public class GamePanel extends JPanel implements Runnable {
                 keyH.resetKeys();
             }
         }
+    }
+
+    public void playMusic(int i, float volume){
+        sound.setFile(i, volume);
+        sound.play();
+        sound.loop();
+    }
+
+    public void stopMusic(){
+        sound.stop();
+    }
+
+    public void playSFX(int i, float volume){
+        sound.setFile(i, volume);
+        sound.play();
     }
 }

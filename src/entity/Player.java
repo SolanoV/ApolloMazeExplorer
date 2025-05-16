@@ -74,7 +74,7 @@ public class Player extends Entity {
         playerAction=IDLEFRONT;
     }
     public void update() {
-        reset();
+        isGameOver();
         updateCooldownTimer();
         inputHandler();
         updateMovement();
@@ -167,6 +167,7 @@ public class Player extends Entity {
                 targetGridX = xPosition + dx;
                 targetGridY = yPosition + dy;
                 if (grid.isValidMove(targetGridX, targetGridY)) {
+                    gp.playSFX(1, 0);
                     moves--;
                     System.out.println("Moves Left:" + moves);
                     isMoving = true;
@@ -210,6 +211,20 @@ public class Player extends Entity {
     private float lerp(float a, float b, float t) {
         return a + (b - a) * t;
     }
+
+    private void isGameOver(){
+        if(playerAtEndTile()){
+            System.exit(0);
+        }
+        else reset();
+    }
+    private boolean playerAtEndTile(){
+        if(targetGridX == grid.getEndX() && targetGridY == grid.getEndY()){
+            return true;
+        }
+        return false;
+    }
+
     private boolean resetChecker(){
         if(moves>0) return false;
         return true;
@@ -217,7 +232,7 @@ public class Player extends Entity {
     public void reset(){
         if(resetChecker()){
             this.moves=grid.mazeGenerator.getMovesCount();
-            xPosition=grid.getCharacterStartX();
+            this.xPosition=grid.getCharacterStartX();
             this.yPosition=grid.getCharacterStartY();
             this.worldX=xPosition*tileSize;
             this.worldY=yPosition*tileSize;
