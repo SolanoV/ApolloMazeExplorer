@@ -10,7 +10,7 @@ public class KeyHandler implements KeyListener {
     GamePanel gamePanel;
 
     public boolean upPressed, downPressed, leftPressed, rightPressed;
-    public boolean rPressed, controlPressed, zPressed;
+    public boolean rPressed, controlPressed;
 
     public KeyHandler(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
@@ -42,12 +42,13 @@ public class KeyHandler implements KeyListener {
                 case KeyEvent.VK_ENTER:
                     if(gamePanel.ui.commandNumber==0){
                         gamePanel.gameState=gamePanel.playState;
-                        gamePanel.playMusic(0, -20.0f);
+                        gamePanel.playMusic(0,-20.0f);
                     }
                     if(gamePanel.ui.commandNumber==1){
                         System.exit(0);
                     }
                     break;
+
             }
         }
         // PLAY STATE
@@ -71,15 +72,24 @@ public class KeyHandler implements KeyListener {
                 case KeyEvent.VK_CONTROL:
                     controlPressed = true;
                     break;
-                case KeyEvent.VK_Z:
-                    zPressed = true;
+
+            }
+        }
+
+        // CREDIT STATE
+        if(gamePanel.gameState==gamePanel.creditState) {
+            switch (code) {
+                case KeyEvent.VK_UP:
+                    upPressed = true;
                     break;
-                case KeyEvent.VK_P:
-                    if (gamePanel.gameState == gamePanel.playState) {
-                        gamePanel.gameState = gamePanel.pauseState;
-                    } else if (gamePanel.gameState == gamePanel.pauseState) {
-                        gamePanel.gameState = gamePanel.playState;
-                    }
+                case KeyEvent.VK_DOWN:
+                    downPressed = true;
+                    break;
+                case KeyEvent.VK_LEFT:
+                    leftPressed = true;
+                    break;
+                case KeyEvent.VK_RIGHT:
+                    rightPressed = true;
                     break;
 
             }
@@ -88,18 +98,40 @@ public class KeyHandler implements KeyListener {
 
     @Override
     public void keyReleased(KeyEvent e) {
+        int code = e.getKeyCode();
+        if (code == KeyEvent.VK_P) {
+            if (gamePanel.gameState == gamePanel.playState) {
+                gamePanel.previousGameState = gamePanel.playState;
+                gamePanel.gameState = gamePanel.pauseState;
+                gamePanel.stopMusic();
+                System.out.println("Stopped music in pauseState from playState");
+            } else if (gamePanel.gameState == gamePanel.creditState) {
+                gamePanel.previousGameState = gamePanel.creditState;
+                gamePanel.gameState = gamePanel.pauseState;
+                gamePanel.stopMusic();
+                System.out.println("Stopped music in pauseState from creditState");
+            } else if (gamePanel.gameState == gamePanel.pauseState) {
+                gamePanel.gameState = gamePanel.previousGameState;
+                if (gamePanel.previousGameState == gamePanel.playState) {
+                    gamePanel.playMusic(0, -20.0f); // backgroundMusic.wav
+                    System.out.println("Resumed playState music");
+                } else if (gamePanel.previousGameState == gamePanel.creditState) {
+                    gamePanel.playMusic(2, -20.0f); // creditMusic.wav
+                    System.out.println("Resumed creditState music");
+                }
+            }
+        }
+
     }
 
     // Method to reset all flags after processing
     public void resetKeys() {
-        if(gamePanel.gameState==gamePanel.playState) {
             upPressed = false;
             downPressed = false;
             leftPressed = false;
             rightPressed = false;
             rPressed = false;
             controlPressed = false;
-            zPressed = false;
-        }
+
     }
 }

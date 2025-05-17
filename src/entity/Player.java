@@ -3,6 +3,7 @@ package entity;
 import main.GamePanel;
 import input.KeyHandler;
 import maze.Grid;
+import tile.TileManager;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -18,6 +19,7 @@ public class Player extends Entity {
     Grid grid;
     BufferedImage img;
     BufferedImage[][] animations;
+    TileManager tileManager;
 
     private int animationTick;
     private int animationIndex;
@@ -29,6 +31,7 @@ public class Player extends Entity {
     int tileSize;
     int FPS;
 
+    // PLAYER POSITION
     int targetGridX;
     int targetGridY;
     float worldX; // Pixel position
@@ -39,6 +42,8 @@ public class Player extends Entity {
     float cooldownTimer; // Cooldown timer
     float cooldownDuration; // 0.25 seconds cooldown
 
+    // STATE DATA
+    int stage=1;
     int moves;
 
     public Player(GamePanel gp, KeyHandler keyH, Grid grid) {
@@ -67,6 +72,7 @@ public class Player extends Entity {
         this.cooldownDuration = 0.25f;
 
         this.moves=grid.mazeGenerator.getMovesCount();
+        this.tileManager=gp.tileManager;
         importImage();
         loadAnimations();
 
@@ -74,7 +80,9 @@ public class Player extends Entity {
         playerAction=IDLEFRONT;
     }
     public void update() {
-        isGameOver();
+        if(gp.gameState==gp.playState){
+            isGameOver();
+        }
         updateCooldownTimer();
         inputHandler();
         updateMovement();
@@ -213,10 +221,25 @@ public class Player extends Entity {
     }
 
     private void isGameOver(){
-        if(playerAtEndTile()){
-            System.exit(0);
+        if(playerAtEndTile()&&stage<=3){
+            reset(new Grid(gp.maxScreenCol,gp.maxScreenRow, gp));
+            tileManager.reset(this.grid);
+            keyH.resetKeys();
+            stage++;
         }
-        else reset();
+        else if(stage==4){
+            gp.stopMusic();
+            gp.gameState = gp.creditState;
+            Grid newGrid = new Grid(gp.maxScreenCol, gp.maxScreenRow, gp); // Create credit grid
+            reset(newGrid);
+            tileManager.reset(this.grid);
+            keyH.resetKeys();
+            gp.playMusic(2, -20.0f);
+        }
+        else if(resetChecker()){
+            reset();
+        }
+
     }
     private boolean playerAtEndTile(){
         if(targetGridX == grid.getEndX() && targetGridY == grid.getEndY()){
@@ -231,7 +254,9 @@ public class Player extends Entity {
     }
     public void reset(){
         if(resetChecker()){
-            this.moves=grid.mazeGenerator.getMovesCount();
+            if(gp.gameState==gp.playState) {
+                this.moves = grid.mazeGenerator.getMovesCount();
+            }
             this.xPosition=grid.getCharacterStartX();
             this.yPosition=grid.getCharacterStartY();
             this.worldX=xPosition*tileSize;
@@ -243,7 +268,9 @@ public class Player extends Entity {
     }
     public void reset(Grid grid){
         this.grid=grid;
-        this.moves=grid.mazeGenerator.getMovesCount();
+        if(gp.gameState==gp.playState) {
+            this.moves = grid.mazeGenerator.getMovesCount();
+        }
         xPosition=grid.getCharacterStartX();
         yPosition=grid.getCharacterStartY();
         this.worldX=xPosition*tileSize;
@@ -258,6 +285,13 @@ public class Player extends Entity {
     }
     public void setMoves(int moves) {
         this.moves = moves;
+    }
+
+    public int getStage(){
+        return stage;
+    }
+    public void setStage(int stage) {
+        this.stage = stage;
     }
 
 

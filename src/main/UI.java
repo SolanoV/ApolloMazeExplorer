@@ -2,19 +2,30 @@ package main;
 
 import maze.Grid;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class UI {
     GamePanel gp;
     Graphics g;
-    Font arial_40;
+    Font vcr_osd;
+    BufferedImage image1;
 
     // Title Screen
     public int commandNumber=0;
 
-    public UI(GamePanel gp) {
+    public UI(GamePanel gp){
         this.gp=gp;
-        arial_40 = new Font("Arial", Font.BOLD, 40);
+        importImage();
+        try (InputStream is = getClass().getResourceAsStream("/fonts/VCR_OSD_MONO_1.001.ttf")) {
+            this.vcr_osd = Font.createFont(Font.TRUETYPE_FONT, is);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void draw(Graphics g) {
@@ -25,12 +36,20 @@ public class UI {
             drawTitleScreen();
         }
         if(gp.gameState== gp.playState){
-            g.setFont(arial_40);
-            g.setColor(Color.white);
-            g.drawString(""+gp.player.getMoves(), 100, 100);
+            mazeBackground();
+            drawMoves();
+            drawStage();
         }
         if(gp.gameState==gp.pauseState){
             drawPauseScreen();
+            if(gp.previousGameState==gp.playState) {
+                mazeBackground();
+                drawMoves();
+                drawStage();
+            }
+        }
+        if(gp.gameState==gp.creditState){
+
         }
 
     }
@@ -61,7 +80,34 @@ public class UI {
     public void drawPauseScreen() {
         g.setFont(g.getFont().deriveFont(Font.PLAIN,80F));
         String text="PAUSED";
+        g.setColor(Color.WHITE);
         g.drawString(text, 600, 450);
+    }
+    public void drawMoves(){
+        g.setFont(vcr_osd.deriveFont(70F));
+        g.setColor(Color.white);
+        if(gp.player.getMoves()<10){
+            g.drawString("" + gp.player.getMoves(), 165, 660);
+        } else {
+            g.drawString("" + gp.player.getMoves(), 140, 660);
+        }
+    }
+    public void drawStage(){
+        g.setFont(vcr_osd.deriveFont(70F));
+        g.setColor(Color.white);
+        g.drawString(""+gp.player.getStage(), 1330, 310);
+    }
+    public void mazeBackground(){
+        g.drawImage(image1, 0,0,1530,860,null);
+    }
+    private void importImage(){
+        InputStream mazebackground = getClass().getResourceAsStream("/background/mazeBackground.png");
+
+        try{
+            image1 = ImageIO.read(mazebackground);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
 

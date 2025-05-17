@@ -14,10 +14,15 @@ public class Sound {
     public Sound() {
         soundURL[0]=getClass().getResource("/sound/backgroundMusic.wav");
         soundURL[1]=getClass().getResource("/sound/dash.wav");
+        soundURL[2]=getClass().getResource("/sound/creditMusic.wav");
     }
 
     public void setFile(int i, float volume){
         try{
+            if(i!=1){
+                stop();
+            }
+
             if (soundURL[i] == null) {
                 throw new IllegalArgumentException("Sound URL at index " + i + " is null. Check resource path.");
             }
@@ -54,14 +59,38 @@ public class Sound {
         }
     }
     public void play(){
-        clip.start();
+        if (clip != null) {
+            clip.setFramePosition(0);
+            clip.start();
+            System.out.println("Playing sound: " + (clip.isRunning() ? "started" : "failed to start"));
+        } else {
+            System.out.println("Cannot play: Clip is null");
+        }
     }
 
     public void loop(){
-        clip.loop(Clip.LOOP_CONTINUOUSLY);
+        if (clip != null) {
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+            System.out.println("Looping sound");
+        } else {
+            System.out.println("Cannot loop: Clip is null");
+        }
     }
 
     public void stop(){
-        clip.stop();
+        if (clip != null) {
+            if (clip.isRunning()) {
+                clip.stop();
+                System.out.println("Stopped sound");
+            } else {
+                System.out.println("Sound was not running");
+            }
+            clip.flush();
+            clip.close();
+            clip = null;
+            System.out.println("Closed sound clip");
+        } else {
+            System.out.println("No sound to stop: Clip is null");
+        }
     }
 }

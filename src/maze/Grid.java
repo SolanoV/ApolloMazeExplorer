@@ -1,5 +1,7 @@
 package maze;
 
+import main.GamePanel;
+
 import java.util.Random;
 
 public class Grid {
@@ -11,7 +13,7 @@ public class Grid {
 
     private int width; // Matches maxScreenCol
     private int height; // Matches maxScreenRow
-    private final int[][] grid;
+    private int[][] grid;
 
     private Random rand = new Random();
     private int startX;
@@ -22,19 +24,49 @@ public class Grid {
     private int characterStartY;
 
     public MazeGenerator mazeGenerator;
+    GamePanel gamePanel;
 
-    public Grid(int width, int height) {
+    public Grid(int width, int height, GamePanel gamePanel) {
         // Ensure odd dimensions for proper maze generation
 //        this.width = 17;
 //        this.height = 17;
+        this.gamePanel=gamePanel;
         this.width = (width % 2 == 0) ? width + 1 : width;
         this.height = (height % 2 == 0) ? height + 1 : height;
-        grid = new int[this.height][this.width];
-
         // Place start and end near opposite edges, mirrored
-        placeStartAndEnd();
-        initializeGrid();
-        mazeGenerator.printMazeAsNumbers();
+        if(gamePanel.gameState==gamePanel.creditState){
+            this.grid=getCreditGrid();
+            getCharacterStartFromMaze();
+        }
+        else{
+            this.grid = new int[this.height][this.width];
+            placeStartAndEnd();
+            initializeGrid();
+            mazeGenerator.printMazeAsNumbers();
+        }
+
+    }
+    private int[][] getCreditGrid(){
+        int[][] newGrid=new int[][]{
+                {0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0}
+        };
+        return newGrid;
     }
 
     private void placeStartAndEnd() {
@@ -103,7 +135,7 @@ public class Grid {
         if (x < 0 || x >= width || y < 0 || y >= height) {
             return false;
         }
-        return grid[y][x] == FLOOR || grid[y][x] == START || grid[y][x] == END || grid[y][x] == PATH;
+        return grid[y][x] == FLOOR || grid[y][x] == START || grid[y][x] == END || grid[y][x] == PATH || grid[y][x]==10||grid[y][x]==11 ||grid[y][x]==12||grid[y][x]==13;
     }
 
     public int getCell(int x, int y) {
