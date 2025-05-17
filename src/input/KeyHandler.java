@@ -75,6 +75,34 @@ public class KeyHandler implements KeyListener {
 
             }
         }
+        // PAUSE STATE
+        if(gamePanel.gameState==gamePanel.pauseState){
+            switch (code) {
+                case KeyEvent.VK_UP:
+                    gamePanel.ui.pauseNumber--;
+                    System.out.println(gamePanel.ui.pauseNumber);
+                    if(gamePanel.ui.pauseNumber<0){
+                        gamePanel.ui.pauseNumber=1;
+                    }
+                    break;
+                case KeyEvent.VK_DOWN:
+                    gamePanel.ui.pauseNumber++;
+                    System.out.println(gamePanel.ui.pauseNumber);
+                    if(gamePanel.ui.pauseNumber>1) {
+                        gamePanel.ui.pauseNumber = 0;
+                    }
+                    break;
+                case KeyEvent.VK_ENTER:
+                    if(gamePanel.ui.pauseNumber==0){
+                        gamePanel.gameState=gamePanel.playState;
+                        gamePanel.playMusic(0,-20.0f);
+                    }
+                    if(gamePanel.ui.pauseNumber==1){
+                        gamePanel.gameState=gamePanel.titleState    ;
+                    }
+                    break;
+            }
+        }
 
         // CREDIT STATE
         if(gamePanel.gameState==gamePanel.creditState) {
@@ -92,6 +120,15 @@ public class KeyHandler implements KeyListener {
                     rightPressed = true;
                     break;
 
+            }
+        }
+
+        // COMPLETE STATE
+        if(gamePanel.gameState==gamePanel.completeState) {
+            switch (code) {
+                case KeyEvent.VK_ENTER:
+                    gamePanel.gameState=gamePanel.titleState;
+                    break;
             }
         }
     }

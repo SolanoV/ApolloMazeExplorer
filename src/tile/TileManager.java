@@ -350,7 +350,7 @@ public class TileManager {
                     } else if (cell == 13) {
                         tileIndex = 39;
                     } else if (cell == 14) {
-                        tileIndex = 52;
+                        tileIndex = 46;
                     } else if (cell == 15) {
                         tileIndex = 50;
                     } else if (cell == 16) {

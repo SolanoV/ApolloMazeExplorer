@@ -83,6 +83,9 @@ public class Player extends Entity {
         if(gp.gameState==gp.playState){
             isGameOver();
         }
+        if(gp.gameState==gp.creditState){
+            playerTouchExit();
+        }
         updateCooldownTimer();
         inputHandler();
         updateMovement();
@@ -246,6 +249,11 @@ public class Player extends Entity {
             return true;
         }
         return false;
+    }
+    private void playerTouchExit(){
+        if(targetGridX == grid.getCharacterEndX() && targetGridY == grid.getCharacterEndY()){
+            gp.gameState = gp.completeState;
+        }
     }
 
     private boolean resetChecker(){
